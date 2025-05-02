@@ -39,8 +39,11 @@ This section outlines the auditing implications when using Account Keys versus U
     By employing SAS tokens with specific and limited permissions (a core principle when using User Delegation Keys), you significantly narrow down the scope of actions that a particular user or application could have performed. This focused access control inherently makes auditing more effective and targeted.
 # 1) Create Service principal - App registration photo
     Copy Tenant ID, Client ID, Secret
-    In photo, Authentication - Add web platform ---Add Web Redirect UIs ---https://98.70.41.142:3000/auth/callback # Change IP
-    Add API permission 
+    In photo, Authentication - Add web platform ---Add Web Redirect UIs ---https://98.70.41.142:3000/auth/callback # 
+    Change IP
+    Add foolowing permission in photo app reg:
+    Microsoft Graph - User.Read - Delegated - Sign in and read user profile
+    API permission -Azure Storage - user_impersonation - Delegated - Access Azure Storage
 # 2) Create storage account and use MS entra id authentication, Create container photos
 # 3) Create Azure Linux VM
      mkdir storageMSEntra and Copy app.py 
