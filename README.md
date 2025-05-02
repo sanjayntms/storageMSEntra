@@ -41,7 +41,7 @@ This section outlines the auditing implications when using Account Keys versus U
     Copy Tenant ID, Client ID, Secret
     In photo, Authentication - Add web platform ---Add Web Redirect UIs ---https://98.70.41.142:3000/auth/callback # 
     Change IP
-    Add foolowing permission in photo app reg:
+    Add following permission in photo app reg:
     Microsoft Graph - User.Read - Delegated - Sign in and read user profile
     API permission -Azure Storage - user_impersonation - Delegated - Access Azure Storage
 # 2) Create storage account and use MS entra id authentication, Create container photos
