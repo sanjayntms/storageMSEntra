@@ -52,8 +52,11 @@ This section outlines the auditing implications when using Account Keys versus U
      source venv/bin/activate
      pip install Flask msal azure-identity azure-storage-blob
      # Use above copied values in the following 3 lines: 
-     export AZURE_TENANT_ID="b29181dd-e6c6-4cc4-a3eb-deece25ddb54" 
-     export AZURE_CLIENT_ID="64a034ae-ac85-4858-a295-26add4b0d24c"
-     export AZURE_CLIENT_SECRET="_zP8Q~3v.7NiHtfYV_nLKZHi1Evp8IkfeNFMabes"
-     In app.py, Modift storage account name and container name
+     export AZURE_CLIENT_ID="your_client_id"
+     export AZURE_CLIENT_SECRET="your_client_secret"
+     export AZURE_TENANT_ID="your_tenant_id"
+     export AZURE_REDIRECT_URI="https://98.70.41.142:3000/auth/callback"
+     export FLASK_SECRET_KEY="your_super_secret_key"
+     export STORAGE_ACCOUNT_NAME="ntmssaudk"
+     export CONTAINER_NAME="photos"
 # 3) Assign Storage Blob Data owner permission to service principal - photo
