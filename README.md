@@ -1,7 +1,6 @@
 # storageMSEntra
 
 ![image](https://github.com/user-attachments/assets/c51fbb0b-84d3-486d-bad8-fe16ac17b59b)
-You're right to bring up auditing. It's a crucial aspect of security and compliance. Let's discuss how auditing works with both Account Keys and User Delegation Keys in Azure Blob Storage.
 
 Auditing with Account Keys:
 
