@@ -11,20 +11,19 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "your_super_secret_key")
 app.permanent_session_lifetime = timedelta(minutes=3)
 
-# Azure AD Configuration (Keep your values)
-CLIENT_ID = "64a034ae-ac85-4858-a295-26add4b0d24c"
-CLIENT_SECRET = "_zP8Q~3v.7NiHtfYV_nLKZHi1Evp8IkfeNFMabes"
-TENANT_ID = "b29181dd-e6c6-4cc4-a3eb-deece25ddb54"
+# Azure AD Configuration (Read from environment variables)
+CLIENT_ID = os.environ.get("AZURE_CLIENT_ID")
+CLIENT_SECRET = os.environ.get("AZURE_CLIENT_SECRET")
+TENANT_ID = os.environ.get("AZURE_TENANT_ID")
 REDIRECT_URI = os.environ.get("AZURE_REDIRECT_URI", "https://98.70.41.142:3000/auth/callback")
 AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPES = ["User.Read"]
 
 msal_client = None
 
-# Azure Storage Configuration (Keep your values)
+# Azure Storage Configuration
 STORAGE_ACCOUNT_NAME = os.environ.get("STORAGE_ACCOUNT_NAME", "ntmssaudk")
 CONTAINER_NAME = os.environ.get("CONTAINER_NAME", "photos")
-
 credential = DefaultAzureCredential()
 
 blob_service_client = None
@@ -89,9 +88,9 @@ def auth_callback():
 
 @app.route('/logout')
 def logout():
-     session.pop("user", None)
-     session.pop("flow", None)
-     return redirect(url_for('login'))
+    session.pop("user", None)
+    session.pop("flow", None)
+    return redirect(url_for('login'))
 
 @app.route('/', methods=['GET', 'POST'])
 @requires_auth
@@ -107,7 +106,7 @@ def index():
                     # Include user ID in the blob name
                     blob_name = f"{user_id}/{uuid.uuid4()}-{file.filename}"
                     blob_client = container_client.get_blob_client(blob_name)
-                    future = executor.submit(blob_client.upload_blob, file.read())
+                    future = executor.submit(blob_client.upload_blob, file.read(), overwrite=True)
                     future.result()
                 except Exception as e:
                     upload_error = f'Error uploading: {e}'
