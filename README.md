@@ -1,4 +1,8 @@
 # storageMSEntra
+
+![image](https://github.com/user-attachments/assets/c51fbb0b-84d3-486d-bad8-fe16ac17b59b)
+
+
 # 1) Create Service principal - App registration photo
     Copy Tenant ID, Client ID, Secret
     In photo, Authentication - Add web platform ---Add Web Redirect UIs ---https://98.70.41.142:3000/auth/callback # Change IP
