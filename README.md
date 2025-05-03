@@ -43,7 +43,7 @@ This section outlines the auditing implications when using Account Keys versus U
     Change IP
     Add following permission in photo app reg:
     Microsoft Graph - User.Read - Delegated - Sign in and read user profile
-    API permission -Azure Storage - user_impersonation - Delegated - Access Azure Storage
+    ## Optional - API permission -Azure Storage - user_impersonation - Delegated - Access Azure Storage
 # 2) Create storage account and use MS entra id authentication, Create container photos
 # 3) Create Azure Linux VM
      mkdir storageMSEntra and Copy app.py 
