@@ -49,8 +49,8 @@ This section outlines the auditing implications when using Account Keys versus U
      mkdir storageMSEntra and Copy app.py 
      mkdir storageMSEntra/templates and copy home.html here
      sudo apt update
-     sudo apt install python3 python3-pip
-     sudo apt install python3-venv
+     sudo apt install python3 python3-pip -y
+     sudo apt install python3-venv -y
      python3 -m venv venv
      source venv/bin/activate
      pip install Flask msal azure-identity azure-storage-blob
