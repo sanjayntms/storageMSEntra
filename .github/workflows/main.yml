@@ -1,0 +1,72 @@
+name: Deploy Azure VM with Cloud-Init
+
+on:
+  workflow_dispatch:
+    inputs:
+      vmName:
+        description: "VM Name"
+        required: true
+        default: "storagevm"
+      resourceGroup:
+        description: "Resource Group"
+        required: true
+        default: "storage-rg"
+      location:
+        description: "Azure Region"
+        required: true
+        default: "centralindia"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-vm:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create Resource Group
+      run: |
+        az group create \
+          --name "${{ github.event.inputs.resourceGroup }}" \
+          --location "${{ github.event.inputs.location }}"
+
+    - name: Deploy VM
+      run: |
+        az vm create \
+          --resource-group "${{ github.event.inputs.resourceGroup }}" \
+          --name "${{ github.event.inputs.vmName }}" \
+          --image Ubuntu2204 \
+          --admin-username vmadmin \
+          --admin-password "${{ secrets.VMADMIN_PASSWORD }}" \
+          --public-ip-sku Standard \
+          --custom-data cloud-init.yaml
+
+    - name: Open port 3000 for Flask App
+      run: |
+        az vm open-port \
+          --resource-group "${{ github.event.inputs.resourceGroup }}" \
+          --name "${{ github.event.inputs.vmName }}" \
+          --port 3000 \
+          --priority 1001
+
+    - name: Get Public IP
+      run: |
+        IP=$(az vm list-ip-addresses \
+          --resource-group "${{ github.event.inputs.resourceGroup }}" \
+          --name "${{ github.event.inputs.vmName }}" \
+          --query "[0].virtualMachine.network.publicIpAddresses[0].ipAddress" -o tsv)
+
+        echo "========================================="
+        echo " VM deployed successfully!"
+        echo " Public IP: $IP"
+        echo " App URL:  https://$IP:3000"
+        echo "========================================="
