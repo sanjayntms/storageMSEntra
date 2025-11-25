@@ -1,264 +1,85 @@
 <!DOCTYPE html>
- <html lang="en">
- <head>
-  <meta charset="UTF-8">
-  <title>3D Photo Gallery</title>
-  <style>
-   body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    background: linear-gradient(45deg, #2980b9, #8e44ad);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow: hidden;
-   }
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Colorful Secure Media Gallery</title>
+    <link rel="stylesheet" href="/static/gallery.css">
+</head>
 
-   #gallery-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Increased minmax for larger cards */
-    gap: 25px; /* Increased gap */
-    padding: 30px; /* Increased padding */
-    width: 95%; /* Slightly wider */
-    max-width: 1400px; /* Increased max width */
-    perspective: 1000px; /* Enable 3D perspective */
-   }
+<body>
 
-   .card {
-    position: relative;
-    width: 100%;
-    height: 200px; /* Increased height for the card */
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    transform-style: preserve-3d;
-    transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), box-shadow 0.6s;
-    cursor: pointer;
-    background: #333; /* Dark background for the card */
-   }
+    <h1>3D Colorful Secure Media Gallery</h1>
+    <p>Welcome, {{ session['user']['name'] }}!</p>
 
-   .card:hover {
-    transform: rotateY(15deg) scale(1.05);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-    z-index: 10;
-   }
+    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
 
-   .card:hover ~ .card {
-    transform: translateX(30px);
-    opacity: 0.7;
-   }
+    <div id="upload-section">
+        <h2>Upload Any File (Image / MP4 / MP3 / PDF)</h2>
 
-   .card ~ .card:hover {
-    transform: translateX(0);
-    opacity: 1;
-   }
+        {% if upload_error %}
+            <p class="error">{{ upload_error }}</p>
+        {% endif %}
 
-   .thumbnail {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 15px;
-    position: absolute;
-    backface-visibility: hidden;
-    transition: opacity 0.3s ease;
-    opacity: 0.9; /* Slightly visible initially */
-   }
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <input type="submit" value="Upload">
+        </form>
+    </div>
 
-   .card:hover .thumbnail {
-    opacity: 1;
-    transform: scale(1.05);
-   }
+    <h2>Your Media</h2>
 
-   .thumbnail-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, rgba(255, 0, 0, 0.2), rgba(0, 255, 0, 0.2), rgba(0, 0, 255, 0.2));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 15px;
-    mix-blend-mode: color-dodge;
-    backface-visibility: hidden;
-   }
+    <div id="gallery-container">
+        {% for file in files %}
+            <div class="thumbnail-container" onclick="openLightbox({{ loop.index0 }})">
+                <!-- actions -->
+                <button class="icon-btn delete-btn"
+                        onclick="event.stopPropagation(); deleteFile('{{ file.blob_name }}')">
+                    🗑
+                </button>
+                <button class="icon-btn share-btn"
+                        onclick="event.stopPropagation(); shareFile('{{ file.blob_name }}')">
+                    🔗
+                </button>
 
-   .card:hover .thumbnail-overlay {
-    opacity: 1;
-   }
+                {% if file.type == 'image' %}
+                    <img src="{{ file.url }}" class="thumbnail">
 
-   .full-image-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-   }
+                {% elif file.type == 'video' %}
+                    <video class="thumbnail" muted>
+                        <source src="{{ file.url }}" type="video/mp4">
+                    </video>
 
-   .full-image {
-    max-width: 95%;
-    max-height: 95%;
-    border-radius: 10px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-   }
+                {% elif file.type == 'audio' %}
+                    <div class="audio-box">🎵 Audio File</div>
 
-   .close-button {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    color: #fff;
-    font-size: 40px;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 1001;
-   }
+                {% elif file.type == 'pdf' %}
+                    <div class="pdf-box">📄 PDF File</div>
 
-   h1, p, a {
-    color: #fff;
-    text-align: center;
-    margin-bottom: 10px;
-    position: absolute;
-    width: 100%;
-   }
+                {% else %}
+                    <div class="other-box">📁 File</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
 
-   h1 {
-    top: 20px;
-    font-size: 2.5em;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-   }
+    <!-- LIGHTBOX -->
+    <div id="lightboxOverlay" class="lightbox-overlay">
+        <span class="close-button" onclick="closeLightbox()">&times;</span>
+        <span class="prev-button" onclick="changeItem(-1)">&#10094;</span>
+        <span class="next-button" onclick="changeItem(1)">&#10095;</span>
 
-   p {
-    top: 70px;
-    font-size: 1.1em;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-   }
+        <div class="lightbox-content">
+            <img id="lightboxImage" class="lightbox-img" style="display:none;">
+            <video id="lightboxVideo" class="lightbox-video" controls style="display:none;"></video>
+            <audio id="lightboxAudio" class="lightbox-audio" controls style="display:none;"></audio>
+            <iframe id="lightboxPDF" class="lightbox-pdf" style="display:none;"></iframe>
+        </div>
+    </div>
 
-   a {
-    top: 90px;
-    color: #eee;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s ease;
-   }
+    <script>
+        const mediaFiles = {{ files | tojson }};
+    </script>
+    <script src="/static/gallery.js"></script>
 
-   a:hover {
-    color: #ffcc00;
-   }
-
-   #upload-section {
-    position: absolute;
-    bottom: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
-    display: flex;
-    gap: 10px;
-    align-items: center;
-   }
-
-   #upload-section label, #upload-section input[type="submit"] {
-    color: #fff;
-   }
-
-   #upload-section input[type="file"] {
-    background: transparent;
-    border: none;
-    color: #fff;
-   }
-
-   #upload-section input[type="submit"] {
-    background-color: #5cb85c;
-    color: #fff;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-   }
-
-   #upload-section input[type="submit"]:hover {
-    background-color: #4cae4c;
-   }
-
-   h2 {
-    display: none;
-   }
-  </style>
- </head>
- <body>
-  <h1>NTMS MS Entra ID based Photo Gallery</h1>
-  <p>Welcome, {{ session['user']['name'] }}!</p>
-  <p><a href="{{ url_for('logout') }}">Logout</a></p>
-
-  <div id="upload-section">
-   <form method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" required>
-    <input type="submit" value="Upload">
-    {% if upload_error %}
-    <p style="color: red;">{{ upload_error }}</p>
-    {% endif %}
-   </form>
-  </div>
-
-  <h2>Photos</h2>
-  <div id="gallery-container">
-   {% if images %}
-   {% for image in images %}
-   <div class="card" onclick="showFullImage('{{ image }}')">
-    <img src="{{ image }}" alt="Photo" class="thumbnail"
-     ondragstart="return false;" oncontextmenu="return false;">
-    <div class="thumbnail-overlay"></div>
-   </div>
-   {% endfor %}
-   {% else %}
-   <p style="position: static;">No images found.</p>
-   {% endif %}
-  </div>
-
-  <div id="fullImageOverlay" class="full-image-overlay" onclick="closeFullImage()">
-   <span class="close-button">&times;</span>
-   <img id="fullImageDisplay" class="full-image">
-  </div>
-
-  <script>
-   const galleryContainer = document.getElementById('gallery-container');
-   const cards = document.querySelectorAll('.card');
-   const fullImageOverlay = document.getElementById('fullImageOverlay');
-   const fullImageDisplay = document.getElementById('fullImageDisplay');
-   const closeButton = document.querySelector('.close-button');
-
-   function showFullImage(imageUrl) {
-    fullImageDisplay.src = imageUrl;
-    fullImageOverlay.style.display = 'flex';
-   }
-
-   function closeFullImage() {
-    fullImageOverlay.style.display = 'none';
-   }
-
-   document.addEventListener('contextmenu', (e) => {
-    if (e.target.classList.contains('thumbnail')) {
-     e.preventDefault();
-    }
-   });
-
-   document.addEventListener('dragstart', (e) => {
-    if (e.target.classList.contains('thumbnail')) {
-     e.preventDefault();
-    }
-   });
-
-   cards.forEach(card => {
-    const randomRotation = (Math.random() - 0.5) * 5;
-    card.style.transform = `rotateY(${randomRotation}deg)`;
-   });
-  </script>
- </body>
- </html>
+</body>
+</html>
