@@ -4,41 +4,29 @@
     <title>Welcome</title>
     <style>
         body {
-            font-family: Arial;
-            background: linear-gradient(135deg,#a18cd1,#fbc2eb);
-            height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            color: white;
+            text-align: center;
+            background: linear-gradient(135deg,#dfe9f3,#ffffff);
+            font-family: Arial, sans-serif;
+            padding-top: 150px;
         }
-
+        h1 {
+            font-size: 2.5rem;
+        }
         .btn {
-            padding: 15px 35px;
-            background: #2ecc71;
-            border-radius: 8px;
+            padding: 15px 40px;
+            background: linear-gradient(45deg,#ff7675,#d63031);
             color: white;
+            border-radius: 12px;
             font-size: 20px;
             text-decoration: none;
             font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .btn:hover {
-            background: #27ae60;
-            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
-
-    <h1>Welcome to NTMS Media Vault</h1>
-    <p>Secure Photo & Video Storage with Entra ID</p>
-
-    <a href="/login" class="btn">Login with Microsoft</a>
-
+    <h1>Welcome to NTMS Azure batch Secure Media Gallery</h1>
+    <p>Please sign in with Microsoft Entra ID</p>
+    <a class="btn" href="{{ url_for('login') }}">Login with Microsoft</a>
 </body>
 </html>
-
