@@ -1,0 +1,98 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - python3
+  - python3-venv
+  - python3-pip
+  - git
+  - curl
+
+write_files:
+  # 1. Create the systemd service file
+  - path: /etc/systemd/system/storageMSEntra.service
+    permissions: '0644'
+    owner: root:root
+    content: |
+      [Unit]
+      Description=NTMS Secure Media Gallery (Flask)
+      After=network.target
+
+      [Service]
+      # CHANGE THIS if your VM username is not 'vmadmin'
+      User=vmadmin
+      WorkingDirectory=/opt/storageMSEntra
+      EnvironmentFile=/etc/storage_env
+      ExecStart=/opt/storageMSEntra/venv/bin/python3 /opt/storageMSEntra/app.py
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+
+  # 2. Create the setup script that configures the app
+  - path: /opt/setup_app.sh
+    permissions: '0755'
+    owner: root:root
+    content: |
+      #!/bin/bash
+      set -e
+      
+      # Define the VM User (Must match the one created during VM setup)
+      VM_USER="vmadmin"
+
+      echo "===== Detecting public IP (Azure Metadata Service) ====="
+      # Try Azure Metadata first (faster/safer), fallback to ifconfig.me
+      PUBIP=$(curl -s -H Metadata:true --noproxy "*" "http://169.254.169.254/metadata/instance/network/interface/0/ipv4/ipAddress/0/publicIpAddress?api-version=2021-02-01&format=text")
+      
+      if [ -z "$PUBIP" ]; then
+          echo "Metadata service failed, trying external..."
+          PUBIP=$(curl -s ifconfig.me)
+      fi
+      echo "Detected Public IP: $PUBIP"
+
+      echo "===== Creating App Directory ====="
+      mkdir -p /opt/storageMSEntra
+      # Ensure ownership is correct immediately
+      chown -R $VM_USER:$VM_USER /opt/storageMSEntra
+
+      echo "===== Cloning GitHub repo ====="
+      if [ ! -d /opt/storageMSEntra/.git ]; then
+        # Clone as the user to keep permissions clean
+        sudo -u $VM_USER git clone https://github.com/sanjayntms/storageMSEntra.git /opt/storageMSEntra
+      else
+        echo "Repo already cloned, pulling latest..."
+        cd /opt/storageMSEntra
+        sudo -u $VM_USER git pull
+      fi
+
+      echo "===== Creating virtual environment ====="
+      # Run venv creation as the user
+      sudo -u $VM_USER python3 -m venv /opt/storageMSEntra/venv
+
+      echo "===== Installing required python libs ====="
+      sudo -u $VM_USER /opt/storageMSEntra/venv/bin/pip install --upgrade pip
+      sudo -u $VM_USER /opt/storageMSEntra/venv/bin/pip install flask msal azure-identity azure-storage-blob
+
+      echo "===== Writing environment file ====="
+      cat >/etc/storage_env <<EOF
+      AZURE_CLIENT_ID=2740085e-26af-4c5c-b7ea-11bf54867a41
+      AZURE_CLIENT_SECRET=79V8Q~IBk2lzMQWoAsAW_xNSxJh8tJ05Q7uWEaHc
+      AZURE_TENANT_ID=d7dc4bf7-c4ff-451d-bddc-a1fbbfc21ea0
+      AZURE_REDIRECT_URI=https://$PUBIP:3000/auth/callback
+      FLASK_SECRET_KEY=your_super_secret_key
+      STORAGE_ACCOUNT_NAME=ntmssaudk
+      CONTAINER_NAME=photos
+      EOF
+
+      chmod 644 /etc/storage_env
+      chown root:root /etc/storage_env
+
+      echo "===== Starting Service ====="
+      systemctl daemon-reload
+      systemctl enable storageMSEntra
+      systemctl restart storageMSEntra
+
+runcmd:
+  # Execute the setup script we wrote above
+  - /opt/setup_app.sh
