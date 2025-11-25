@@ -63,12 +63,13 @@ This section outlines the auditing implications when using Account Keys versus U
      export STORAGE_ACCOUNT_NAME="ntmssaudk"
      export CONTAINER_NAME="photos"
 # 4) Assign Storage Blob Data owner permission to service principal - photo
-# 5) Optional- Replace in app.py app.run(debug=True, host='0.0.0.0', port=3000, ssl_context='adhoc')
-     with if __name__ == "__main__":
-     app.run(host="0.0.0.0", port=3000)
- *   then build Docker image
+# 5) Optional- Replace in app.py 
+ *   app.run(debug=True, host='0.0.0.0', port=3000, ssl_context='adhoc')
+ *    with if __name__ == "__main__":
+ *    app.run(host="0.0.0.0", port=3000)
+ #   then build Docker image
  *   docker build -t storage-entra:latest .
- *   Run container with environment variables:
+ #   Run container with environment variables:
  *  docker run -d \
   -p 3000:3000 \
   -e AZURE_CLIENT_ID="2740085e-26af-4c5c-b7ea-11bf54867a41" \
