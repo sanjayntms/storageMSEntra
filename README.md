@@ -44,7 +44,7 @@ This section outlines the auditing implications when using Account Keys versus U
     Add following permission in photo app reg:
     Microsoft Graph - User.Read - Delegated - Sign in and read user profile
     ## Optional - API permission -Azure Storage - user_impersonation - Delegated - Access Azure Storage
-# 2) Create storage account and use MS entra id authentication, Create container photos
+# 2) Create a storage account named ntmssaudk and a container named photos, and use MS Entra ID authentication. 
 # 3) Create an Azure Linux with cloud-init.yaml or, after creation of Linux, run the script.sh on the VM. Both files are available in the repo. Or manually want to run, check below
      mkdir storageMSEntra and Copy app.py 
      mkdir storageMSEntra/templates and copy home.html here
