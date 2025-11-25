@@ -45,7 +45,7 @@ This section outlines the auditing implications when using Account Keys versus U
     Microsoft Graph - User.Read - Delegated - Sign in and read user profile
     ## Optional - API permission -Azure Storage - user_impersonation - Delegated - Access Azure Storage
 # 2) Create storage account and use MS entra id authentication, Create container photos
-# 3) Create Azure Linux VM
+# 3) Create an Azure Linux with cloud-init.yaml or, after creation of Linux, run the script.sh on the VM. Both files are available in the repo. Or manually want to run, check below
      mkdir storageMSEntra and Copy app.py 
      mkdir storageMSEntra/templates and copy home.html here
      sudo apt update
