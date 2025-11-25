@@ -1,0 +1,5 @@
+flask
+msal
+azure-identity
+azure-storage-blob
+gunicorn
