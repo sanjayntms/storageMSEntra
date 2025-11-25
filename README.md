@@ -62,4 +62,27 @@ This section outlines the auditing implications when using Account Keys versus U
      export FLASK_SECRET_KEY="your_super_secret_key"
      export STORAGE_ACCOUNT_NAME="ntmssaudk"
      export CONTAINER_NAME="photos"
-# 3) Assign Storage Blob Data owner permission to service principal - photo
+# 4) Assign Storage Blob Data owner permission to service principal - photo
+# 5) Optional- Replace in app.py app.run(debug=True, host='0.0.0.0', port=3000, ssl_context='adhoc')
+     with if __name__ == "__main__":
+     app.run(host="0.0.0.0", port=3000)
+    then build Docker image
+    docker build -t storage-entra:latest .
+    Run container with environment variables:
+    docker run -d \
+  -p 3000:3000 \
+  -e AZURE_CLIENT_ID="2740085e-26af-4c5c-b7ea-11bf54867a41" \
+  -e AZURE_CLIENT_SECRET="79V8Q~IBk2lzMQWoAsAW_xNSxJh8tJ05Q7uWEaHc" \
+  -e AZURE_TENANT_ID="d7dc4bf7-c4ff-451d-bddc-a1fbbfc21ea0" \
+  -e AZURE_REDIRECT_URI="https://<PUBLIC-IP>:3000/auth/callback" \
+  -e FLASK_SECRET_KEY="your_super_secret_key" \
+  -e STORAGE_ACCOUNT_NAME="ntmssaudk" \
+  -e CONTAINER_NAME="photos" \
+  storage-entra:latest
+
+  Push to Azure Container Registry (ACR)
+  az acr login --name <YOUR_ACR_NAME>
+  docker tag storage-entra:latest <YOUR_ACR_NAME>.azurecr.io/storage-entra:latest
+  docker push <YOUR_ACR_NAME>.azurecr.io/storage-entra:latest
+
+
