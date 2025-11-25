@@ -66,10 +66,10 @@ This section outlines the auditing implications when using Account Keys versus U
 # 5) Optional- Replace in app.py app.run(debug=True, host='0.0.0.0', port=3000, ssl_context='adhoc')
      with if __name__ == "__main__":
      app.run(host="0.0.0.0", port=3000)
-    then build Docker image
-    docker build -t storage-entra:latest .
-    Run container with environment variables:
-    docker run -d \
+ *   then build Docker image
+ *   docker build -t storage-entra:latest .
+ *   Run container with environment variables:
+ *  docker run -d \
   -p 3000:3000 \
   -e AZURE_CLIENT_ID="2740085e-26af-4c5c-b7ea-11bf54867a41" \
   -e AZURE_CLIENT_SECRET="79V8Q~IBk2lzMQWoAsAW_xNSxJh8tJ05Q7uWEaHc" \
@@ -80,9 +80,9 @@ This section outlines the auditing implications when using Account Keys versus U
   -e CONTAINER_NAME="photos" \
   storage-entra:latest
 
-  Push to Azure Container Registry (ACR)
-  az acr login --name <YOUR_ACR_NAME>
-  docker tag storage-entra:latest <YOUR_ACR_NAME>.azurecr.io/storage-entra:latest
-  docker push <YOUR_ACR_NAME>.azurecr.io/storage-entra:latest
+  * Push to Azure Container Registry (ACR)
+  * az acr login --name <YOUR_ACR_NAME>
+  * docker tag storage-entra:latest <YOUR_ACR_NAME>.azurecr.io/storage-entra:latest
+  * docker push <YOUR_ACR_NAME>.azurecr.io/storage-entra:latest
 
 
